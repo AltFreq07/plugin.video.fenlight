@@ -59,11 +59,13 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: "v${{ steps.prepare.outputs.version }}"
-          release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
-          body_path: ${{ steps.prepare.outputs.changes_path }}
-          draft: false
-          prerelease: false
+            tag_name: "v${{ steps.prepare.outputs.version }}"
+            release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
+            body_path: ${{ steps.prepare.outputs.changes_path }}
+            draft: false
+            prerelease: false
+            token: ${{ secrets.GITHUB_TOKEN }}
+    
 
       # Step 6: Upload the ZIP as a release asset
       - name: Upload Release Asset
