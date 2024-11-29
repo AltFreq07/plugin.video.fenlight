@@ -4,6 +4,19 @@ on:
   push:
     tags:
       - "v*" # Trigger on tags that start with 'v' (e.g., v2.0.04)
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number for the release (e.g., 2.0.04)"
+        required: true
+        default: "2.0.00"
+      changes:
+        description: "Release notes or changes (multi-line input supported)"
+        required: true
+        default: |
+          [COLOR red][B]Example Release Notes[/B][/COLOR]
+          - Fixed bugs
+          - Added new feature
 
 jobs:
   release:
@@ -14,12 +27,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Read version and changes from files, convert BBCode to Markdown
-      - name: Read and convert changes
+      # Step 2: Get version and changes from inputs or files
+      - name: Prepare version and changes
         id: prepare
         run: |
-          VERSION=$(cat fen_light_version)
-          RAW_CHANGES=$(cat fen_light_changes)
+          VERSION="${{ github.event.inputs.version }}"
+          RAW_CHANGES="${{ github.event.inputs.changes }}"
 
           # Convert BBCode to Markdown or inline HTML
           CONVERTED_CHANGES=$(echo "$RAW_CHANGES" \
@@ -50,7 +63,7 @@ jobs:
           zip -r $ZIP_NAME ./*
           echo "::set-output name=zip_name::$ZIP_NAME"
 
-      # Step 5: Create a GitHub release (if not already created)
+      # Step 5: Create a GitHub release
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
