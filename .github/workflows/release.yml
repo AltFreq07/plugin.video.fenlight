@@ -1,10 +1,14 @@
-name: Create and Attach Release ZIP
+name: Create and Publish Release
 
 on:
   push:
     tags:
       - "v*" # Trigger on tags that start with 'v' (e.g., v2.0.04)
   workflow_dispatch: # Allow manual triggering
+
+permissions:
+  packages: write
+  contents: write
 
 jobs:
   release:
@@ -19,10 +23,7 @@ jobs:
       - name: Read version and changes
         id: prepare
         run: |
-          # Read the version from the fen_light_version file
           VERSION=$(cat fen_light_version)
-
-          # Read and sanitize the changelog
           RAW_CHANGES=$(cat fen_light_changes)
 
           # Convert BBCode to Markdown or inline HTML
@@ -33,9 +34,7 @@ jobs:
             | sed 's/\[B\]/**/g' \
             | sed 's/\[\/B\]/**/g')
 
-          # Save the converted changes to a file for release notes
           echo "$CONVERTED_CHANGES" > changes_processed.md
-
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=changes_path::changes_processed.md"
 
@@ -54,24 +53,13 @@ jobs:
           zip -r $ZIP_NAME resources addon.xml
           echo "::set-output name=zip_name::$ZIP_NAME"
 
-      # Step 5: Create a GitHub release
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        with:
-          tag_name: "v${{ steps.prepare.outputs.version }}"
-          release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
-          body_path: ${{ steps.prepare.outputs.changes_path }}
-          draft: false
-          prerelease: false
+      # Step 5: Publish Release
+      - name: Publish Release
+        uses: elgohr/Github-Release-Action@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 6: Upload the ZIP as a release asset
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.zip.outputs.zip_name }}
-          asset_name: ${{ steps.zip.outputs.zip_name }}
-          asset_content_type: application/zip
+          title: "Fenlight v${{ steps.prepare.outputs.version }}"
+          tag: "v${{ steps.prepare.outputs.version }}"
+          files: ${{ steps.zip.outputs.zip_name }}
+          prerelease: false
