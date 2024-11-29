@@ -52,21 +52,16 @@ jobs:
           zip -r $ZIP_NAME resources addon.xml
           echo "::set-output name=zip_name::$ZIP_NAME"
 
-      # Step 5: Upload Artifact
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: release-asset
-          path: ${{ steps.zip.outputs.zip_name }}
-
-      # Step 6: Publish Release
+      # Step 5: Publish Release
       - name: Publish Release
         uses: ncipollo/release-action@v1
         with:
           tag: "v${{ steps.prepare.outputs.version }}"
           name: "Fenlight v${{ steps.prepare.outputs.version }}"
-          body: ${{ steps.prepare.outputs.changes_path }}
-          artifacts: release-asset
+          bodyFile: ${{ steps.prepare.outputs.changes_path }}
+          artifacts: ${{ steps.zip.outputs.zip_name }}
           prerelease: false
+          allowUpdates: true
+          replacesArtifacts: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
