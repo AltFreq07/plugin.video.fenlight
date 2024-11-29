@@ -4,19 +4,7 @@ on:
   push:
     tags:
       - "v*" # Trigger on tags that start with 'v' (e.g., v2.0.04)
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version number for the release (e.g., 2.0.04)"
-        required: true
-        default: "2.0.00"
-      changes:
-        description: "Release notes or changes (multi-line input supported)"
-        required: true
-        default: |
-          [COLOR red][B]Example Release Notes[/B][/COLOR]
-          - Fixed bugs
-          - Added new feature
+  workflow_dispatch: # Allow manual trigger without requiring inputs
 
 jobs:
   release:
@@ -27,12 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Get version and changes from inputs or files
-      - name: Prepare version and changes
+      # Step 2: Read version and changes from files
+      - name: Read version and changes
         id: prepare
         run: |
-          VERSION="${{ github.event.inputs.version }}"
-          RAW_CHANGES="${{ github.event.inputs.changes }}"
+          # Read the version from the fen_light_version file
+          VERSION=$(cat fen_light_version)
+
+          # Read and sanitize the changelog
+          RAW_CHANGES=$(cat fen_light_changes)
 
           # Convert BBCode to Markdown or inline HTML
           CONVERTED_CHANGES=$(echo "$RAW_CHANGES" \
@@ -42,7 +33,7 @@ jobs:
             | sed 's/\[B\]/**/g' \
             | sed 's/\[\/B\]/**/g')
 
-          # Save changes to a file to pass as input for the release body
+          # Save the converted changes to a file for release notes
           echo "$CONVERTED_CHANGES" > changes_processed.md
 
           echo "::set-output name=version::$VERSION"
