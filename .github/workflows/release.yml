@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - "v*" # Trigger on tags that start with 'v' (e.g., v2.0.04)
-  workflow_dispatch: # Allow manual trigger without requiring inputs
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   release:
@@ -46,12 +46,12 @@ jobs:
           echo "Changes (converted):"
           cat ${{ steps.prepare.outputs.changes_path }}
 
-      # Step 4: Create ZIP file with dynamic name
+      # Step 4: Create ZIP file with only specific files and folders
       - name: Create ZIP file
         id: zip
         run: |
           ZIP_NAME="plugin.video.fenlight-${{ steps.prepare.outputs.version }}.zip"
-          zip -r $ZIP_NAME ./*
+          zip -r $ZIP_NAME resources addon.xml
           echo "::set-output name=zip_name::$ZIP_NAME"
 
       # Step 5: Create a GitHub release
@@ -59,13 +59,13 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-            tag_name: "v${{ steps.prepare.outputs.version }}"
-            release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
-            body_path: ${{ steps.prepare.outputs.changes_path }}
-            draft: false
-            prerelease: false
-            token: ${{ secrets.GITHUB_TOKEN }}
-    
+          tag_name: "v${{ steps.prepare.outputs.version }}"
+          release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
+          body_path: ${{ steps.prepare.outputs.changes_path }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 6: Upload the ZIP as a release asset
       - name: Upload Release Asset
