@@ -16,43 +16,48 @@ jobs:
 
       # Step 2: Read version and changes from files, convert BBCode to Markdown
       - name: Read and convert changes
+        id: prepare
         run: |
           VERSION=$(cat fen_light_version)
           RAW_CHANGES=$(cat fen_light_changes)
 
           # Convert BBCode to Markdown or inline HTML
-          CHANGES=$(echo "$RAW_CHANGES" \
+          CONVERTED_CHANGES=$(echo "$RAW_CHANGES" \
             | sed 's/\[COLOR darkgoldenrod\]/<span style="color:darkgoldenrod">/g' \
             | sed 's/\[COLOR red\]/<span style="color:red">/g' \
             | sed 's/\[\/COLOR\]/<\/span>/g' \
             | sed 's/\[B\]/**/g' \
             | sed 's/\[\/B\]/**/g')
 
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "CHANGES=${CHANGES}" >> $GITHUB_ENV
+          # Save changes to a file to pass as input for the release body
+          echo "$CONVERTED_CHANGES" > changes_processed.md
+
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=changes_path::changes_processed.md"
 
       # Step 3: Log the extracted version and changes (optional for debugging)
       - name: Log extracted values
         run: |
-          echo "Version: ${{ env.VERSION }}"
+          echo "Version: ${{ steps.prepare.outputs.version }}"
           echo "Changes (converted):"
-          echo "${{ env.CHANGES }}"
+          cat ${{ steps.prepare.outputs.changes_path }}
 
       # Step 4: Create ZIP file with dynamic name
       - name: Create ZIP file
+        id: zip
         run: |
-          ZIP_NAME="plugin.video.fenlight-${{ env.VERSION }}.zip"
+          ZIP_NAME="plugin.video.fenlight-${{ steps.prepare.outputs.version }}.zip"
           zip -r $ZIP_NAME ./*
-          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+          echo "::set-output name=zip_name::$ZIP_NAME"
 
       # Step 5: Create a GitHub release (if not already created)
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: "v${{ env.VERSION }}"
-          release_name: "Fenlight v${{ env.VERSION }}"
-          body: ${{ env.CHANGES }}
+          tag_name: "v${{ steps.prepare.outputs.version }}"
+          release_name: "Fenlight v${{ steps.prepare.outputs.version }}"
+          body_path: ${{ steps.prepare.outputs.changes_path }}
           draft: false
           prerelease: false
 
@@ -61,6 +66,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.ZIP_NAME }}
-          asset_name: ${{ env.ZIP_NAME }}
+          asset_path: ${{ steps.zip.outputs.zip_name }}
+          asset_name: ${{ steps.zip.outputs.zip_name }}
           asset_content_type: application/zip
