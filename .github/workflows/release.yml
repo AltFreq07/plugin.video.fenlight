@@ -1,0 +1,66 @@
+name: Create and Attach Release ZIP
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger on tags that start with 'v' (e.g., v2.0.04)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Read version and changes from files, convert BBCode to Markdown
+      - name: Read and convert changes
+        run: |
+          VERSION=$(cat fen_light_version)
+          RAW_CHANGES=$(cat fen_light_changes)
+
+          # Convert BBCode to Markdown or inline HTML
+          CHANGES=$(echo "$RAW_CHANGES" \
+            | sed 's/\[COLOR darkgoldenrod\]/<span style="color:darkgoldenrod">/g' \
+            | sed 's/\[COLOR red\]/<span style="color:red">/g' \
+            | sed 's/\[\/COLOR\]/<\/span>/g' \
+            | sed 's/\[B\]/**/g' \
+            | sed 's/\[\/B\]/**/g')
+
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "CHANGES=${CHANGES}" >> $GITHUB_ENV
+
+      # Step 3: Log the extracted version and changes (optional for debugging)
+      - name: Log extracted values
+        run: |
+          echo "Version: ${{ env.VERSION }}"
+          echo "Changes (converted):"
+          echo "${{ env.CHANGES }}"
+
+      # Step 4: Create ZIP file with dynamic name
+      - name: Create ZIP file
+        run: |
+          ZIP_NAME="plugin.video.fenlight-${{ env.VERSION }}.zip"
+          zip -r $ZIP_NAME ./*
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+
+      # Step 5: Create a GitHub release (if not already created)
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ env.VERSION }}"
+          release_name: "Fenlight v${{ env.VERSION }}"
+          body: ${{ env.CHANGES }}
+          draft: false
+          prerelease: false
+
+      # Step 6: Upload the ZIP as a release asset
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ZIP_NAME }}
+          asset_name: ${{ env.ZIP_NAME }}
+          asset_content_type: application/zip
