@@ -295,6 +295,8 @@ default_settings = [
 {'setting_id': 'trakt.user', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 {'setting_id': 'trakt.client', 'setting_type': 'string', 'setting_default': trakt_default_id},
 {'setting_id': 'trakt.secret', 'setting_type': 'string', 'setting_default': trakt_default_secret},
+#==================== MDBList
+{'setting_id': 'mdblist_api', 'setting_type': 'string', 'setting_default': 'empty_setting'},
 #==================== TMDb
 {'setting_id': 'tmdb_api', 'setting_type': 'string', 'setting_default': tmdb_default_api},
 #==================== OMDb

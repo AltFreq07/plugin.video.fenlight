@@ -74,6 +74,13 @@ def tmdb_api_check_choice(params):
 	else: text = 'Your TMDb API Key is enabled and working'
 	return ok_dialog(text=text)
 
+def mdblist_api_check_choice(params):
+	from apis.mdblist_api import check_mdblist_api_key
+	data = check_mdblist_api_key()
+	if not isinstance(data,list) and data.get('detail', True): text = 'There is an issue with your API Key.[CR][B]"Error: %s"[/B]' % data.get('detail', '')
+	else: text = 'Your MDBList API Key is enabled and working'
+	return ok_dialog(text=text)
+
 def clear_sources_folder_choice(params):
 	setting_id = params['setting_id']
 	set_default(['%s.display_name' % setting_id, '%s.movies_directory' % setting_id, '%s.tv_shows_directory' % setting_id])

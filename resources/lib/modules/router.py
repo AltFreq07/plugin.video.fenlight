@@ -37,6 +37,14 @@ def routing(sys):
 			return exec('trakt_lists.%s(params)' % mode.split('.')[2])
 		from apis import trakt_api
 		return exec('trakt_api.%s(params)' % mode.split('.')[1])
+	if 'mdblist' in mode:
+		from indexers import mdblist_lists
+		if 'my_lists' in mode:
+			return mdblist_lists.get_mdblist_my_lists()
+		if 'top_lists' in mode:
+			return mdblist_lists.get_mdblist_top_lists()
+		if 'build' in mode:
+			return mdblist_lists.build_mdblist(params)
 	if 'build' in mode:
 		if mode == 'build_movie_list':
 			from indexers.movies import Movies

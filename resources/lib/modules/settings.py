@@ -332,3 +332,6 @@ def update_delay():
 
 def update_action():
 	return int(get_setting('fenlight.update.action', '2'))
+
+def mdblist_api_key():
+	return get_setting('fenlight.mdblist_api', '')

@@ -107,6 +107,9 @@ class Navigator:
 			self.add({'mode': 'navigator.trakt_favorites', 'category_name': 'Favorites'}, 'Trakt Favorites', 'trakt')
 			self.add({'mode': 'navigator.trakt_recommendations', 'category_name': 'Recommended'}, 'Trakt Recommended', 'trakt')
 			self.add({'mode': 'build_my_calendar'}, 'Trakt Calendar', 'trakt')
+		if s.mdblist_api_key() != '':
+			self.add({'mode': 'mdblist.my_lists'}, 'MDBList My Lists', 'mdblist')
+			self.add({'mode': 'mdblist.top_lists'}, 'MDBList Top Lists', 'mdblist')
 		self.add({'mode': 'trakt.list.get_trakt_trending_popular_lists', 'list_type': 'trending', 'category_name': 'Trending User Lists'}, 'Trending User Lists', 'trakt')
 		self.add({'mode': 'trakt.list.get_trakt_trending_popular_lists', 'list_type': 'popular', 'category_name': 'Popular User Lists'}, 'Popular User Lists', 'trakt')
 		self.add({'mode': 'navigator.search_history', 'action': 'trakt_lists'}, 'Search User Lists', 'search')
