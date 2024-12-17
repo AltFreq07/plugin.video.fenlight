@@ -744,29 +744,6 @@ content_settings = '\
 \n                        <property name="setting_description">Restore default Trakt Client Secret Key</property>\
 \n                        <onclick>RunPlugin(plugin://plugin.video.fenlight/?mode=settings_manager.restore_setting_default&amp;setting_id=trakt.secret)</onclick>\
 \n                    </item>\
-\n            <!-- MDBList -->\
-\n                    <item>\
-\n                        <visible>Container(2000).HasFocus(50)</visible>\
-\n                        <property name="setting_label">MDBList</property>\
-\n                        <property name="setting_type">separator</property>\
-\n                        <onclick>noop</onclick>\
-\n                    </item>\
-\n                    <item>\
-\n                        <visible>Container(2000).HasFocus(50)</visible>\
-\n                        <property name="setting_label">API Key</property>\
-\n                        <property name="setting_type">numeric</property>\
-\n                        <property name="setting_value">$INFO[Window(10000).Property(fenlight.mdblist_api)]</property>\
-\n                        <property name="setting_description">Enter here your MDBList API key</property>\
-\n                        <onclick>RunPlugin(plugin://plugin.video.fenlight/?mode=settings_manager.set_string&amp;setting_id=mdblist_api)</onclick>\
-\n                    </item>\
-\n                    <item>\
-\n                        <visible>Container(2000).HasFocus(50)</visible>\
-\n                        <property name="setting_label">Test API Key...</property>\
-\n                        <property name="setting_type">action</property>\
-\n                        <property name="setting_value">...</property>\
-\n                        <property name="setting_description">Test if your MDBList API is activated and working</property>\
-\n                        <onclick>RunPlugin(plugin://plugin.video.fenlight/?mode=mdblist_api_check_choice)</onclick>\
-\n                    </item>\
 \n            <!-- TMDb -->\
 \n                    <item>\
 \n                        <visible>Container(2000).HasFocus(50)</visible>\
