@@ -27,11 +27,11 @@ jobs:
 
           # Convert BBCode to Markdown or inline HTML
           CONVERTED_CHANGES=$(echo "$RAW_CHANGES" \
-            | sed 's/\[COLOR darkgoldenrod\]/<span style="color:darkgoldenrod">/g' \
-            | sed 's/\[COLOR red\]/<span style="color:red">/g' \
+            | sed -E 's/\[COLOR ([^]]+)\]/<span style="color:\1">/g' \
             | sed 's/\[\/COLOR\]/<\/span>/g' \
             | sed 's/\[B\]/**/g' \
             | sed 's/\[\/B\]/**/g')
+
 
           echo "$CONVERTED_CHANGES" > changes_processed.md
           echo "::set-output name=version::$VERSION"
